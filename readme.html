@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>帮助文档</title>
+    <style>
+        table {
+            border: solid 2px #000000;
+        }
+
+        td {
+            border: solid 1px #999999;
+        }
+
+        tr {
+            border: solid 2px #000000;
+        }
+    </style>
+</head>
+<body>
+<h1>拖动块的帮助文档</h1>
+
+<h2>名词解释</h2>
+<h3>小框对象</h3>
+<img src="img/小框和连线.png">
+<p>这是画板上的基本小框，其内容如下</p>
+<table>
+    <thead>
+    <th>键</th>
+    <th>类型</th>
+    <th>解释</th>
+    </thead>
+    <tbody>
+    <tr>
+        <td>data</td>
+        <td>Object</td>
+        <td>小框的数据，详见下面的解释</td>
+    </tr>
+    <tr>
+        <td>option</td>
+        <td>Object</td>
+        <td>小框显示选项，详见下面的解释</td>
+    </tr>
+    <tr>
+        <td>getLine</td>
+        <td>function</td>
+        <td>获取小框周围的连线，输入参数为'in'或'out',分别获取所有指向和离开小框的连线<br>
+            返回值为一个数组，每个元素为一个连线对象
+        </td>
+    </tr>
+    </tbody>
+</table>
+<h4>data对象</h4>
+<table>
+    <thead>
+    <th>键</th>
+    <th>类型</th>
+    <th>解释</th>
+    </thead>
+    <tbody>
+    <tr>
+        <td>name</td>
+        <td>string</td>
+        <td>小框的名字，表示其属性。<br>
+            就像一个水杯无论叫猫爪杯还是马克杯，它都叫杯子，name是用来表示小块属性的
+        </td>
+    </tr>
+    <tr>
+        <td>text</td>
+        <td>string</td>
+        <td>作为文字显示在小框上</td>
+    </tr>
+    <tr>
+        <td>src</td>
+        <td>string</td>
+        <td>小框中图片的链接，可空</td>
+    </tr>
+    <tr>
+        <td>att</td>
+        <td>string</td>
+        <td>备注信息，对应详细栏中的备注</td>
+    </tr>
+    还可能有其他附加数据，详见下文
+    </tbody>
+</table>
+
+<h4>option对象</h4>
+<table>
+    <thead>
+    <th>键</th>
+    <th>类型</th>
+    <th>解释</th>
+    </thead>
+    <tbody>
+    <tr>
+        <td>mHeight</td>
+        <td>number</td>
+        <td>框中图片的高度，默认100</td>
+    </tr>
+    <tr>
+        <td>mWidth</td>
+        <td>number</td>
+        <td>框中图片的高度，默认100</td>
+    </tr>
+    <tr>
+        <td>mode</td>
+        <td>string</td>
+        <td>包含字符't',或'i'<br>
+            't'表示显示文字，'i'表示图片，'it'或'ti'表示图和文字都显示
+        </td>
+    </tr>
+    <tr>
+        <td>backgroundColor</td>
+        <td>string</td>
+        <td>框的背景色</td>
+    </tr>
+    <tr>
+        <td>edgeColor</td>
+        <td>string</td>
+        <td>框的边框色</td>
+    </tr>
+    <tr>
+        <td>change</td>
+        <td>array</td>
+        <td>表示data的附加选项，在渲染页面的调节栏时会被用到，每个元素是一个“附加对象”,详见下文介绍</td>
+    </tr>
+    </tbody>
+</table>
+
+<h4>附加对象</h4>
+<p>小框或连线对象中option.change的值，需要开发者自己填写</p>
+<table>
+    <thead>
+    <th>键</th>
+    <th>类型</th>
+    <th>必填</th>
+    <th>解释</th>
+    </thead>
+    <tbody>
+    <tr>
+        <td>name</td>
+        <td>string</td>
+        <td>是</td>
+        <td>这个附加数据的键，将作为键添加到小框或连线对象中</td>
+    </tr>
+    <tr>
+        <td>kind</td>
+        <td>string</td>
+        <td>是</td>
+        <td>'t'(填任意文字)或'ch'(多选框)</td>
+    </tr>
+    <tr>
+        <td>default</td>
+        <td>string</td>
+        <td>否，如果kind=='ch',不应有此键值对</td>
+        <td>默认的文字内容</td>
+    </tr>
+    <tr>
+        <td>av</td>
+        <td>array</td>
+        <td>kind=='ch,是<br>kind=='t',不应有此值</td>
+        <td>每个元素是一个字符串，表示此选项的名字，被选后将作为这个附加数据的值进入data，默认值为0号元素</td>
+    </tr>
+    </tbody>
+</table>
+
+<h3>连线对象</h3>
+<p>连接两个对象所使用的线</p>
+<table>
+    <thead>
+    <th>键</th>
+    <th>类型</th>
+    <th>解释</th>
+    </thead>
+    <tbody>
+    <tr>
+        <td>data</td>
+        <td>Object</td>
+        <td>连线的数据，除不包含src键值对，与小框同</td>
+    </tr>
+    <tr>
+        <td>option</td>
+        <td>Object</td>
+        <td>连线显示选项，仅包含change键引导的"附加对象"值</td>
+    </tr>
+    </tbody>
+</table>
+
+<h3>连线数据对象</h3>
+<p>用来生成连线的数据</p>
+<table>
+    <thead>
+    <th>键</th>
+    <th>类型</th>
+    <th>必填</th>
+    <th>解释</th>
+    </thead>
+    <tbody>
+    <tr>
+        <td>name</td>
+        <td>string</td>
+        <td>是</td>
+        <td>这个附加数据的键，将作为text和name添加到data中<br>
+            name将是只读的，而text可根据用户需要自己调整
+        </td>
+    </tr>
+    <tr>
+        <td>data</td>
+        <td>object</td>
+        <td>否</td>
+        <td>所生成的连线对象中额外的data数据</td>
+    </tr>
+    <tr>
+        <td>option</td>
+        <td>object</td>
+        <td>否</td>
+        <td>直接作为连线对象的option，详细见'连线对象'</td>
+    </tr>
+    <tr>
+        <td>av</td>
+        <td>array</td>
+        <td>kind=='ch,是<br>kind=='t',不应有此值</td>
+        <td>每个元素是一个字符串，表示此选项的名字，被选后将作为这个附加数据的值进入data，默认值为0号元素</td>
+    </tr>
+    </tbody>
+</table>
+
+<h3>小框数据对象</h3>
+<p>用来生成小框的数据对象，其结构同连线数据对象</p>
+
+<h2>打开后</h2>
+<p>打开index.html后，你会看到头里面有两个函数和一个数组</p>
+<img src="img/头部.png">
+<table>
+    <tbody>
+    <tr>
+        <td>connFun</td>
+        <td>用来连接两个小框的时候，所使用的连接函数，它的输入为一个小框对象，输出为一个数组，每个元素是一个连线数据对象。需要开发者根据小框的性质自行设计</td>
+    </tr>
+    <tr>
+        <td>addBoxClickCB</td>
+        <td>在点击按钮添加小框的时候所使用的回东调，我已经写好了，不建议开发者自行更改</td>
+    </tr>
+    <tr>
+        <td>toolData</td>
+        <td>用来渲染工具栏的树状对象，称之为'工具对象'</td>
+    </tr>
+    </tbody>
+</table>
+
+<h2>编写toolData</h2>
+<p>开发者只要编好toolData就行。<br>
+    工具对象有两种，具有child键的为节点对象，没有的为功能按钮对象</p>
+<h3>节点对象</h3>
+<table>
+    <thead>
+    <th>键</th>
+    <th>类型</th>
+    <th>必填</th>
+    <th>解释</th>
+    </thead>
+    <tbody>
+    <tr>
+        <td>name</td>
+        <td>string</td>
+        <td>是</td>
+        <td>工具栏标题</td>
+    </tr>
+    <tr>
+        <td>child</td>
+        <td>array</td>
+        <td>是</td>
+        <td>元素为工具对象，用来渲染下一层菜单</td>
+    </tr>
+    <tr>
+        <td>img</td>
+        <td>string</td>
+        <td>否</td>
+        <td>显示在菜单栏中的图标</td>
+    </tr>
+    </tbody>
+</table>
+
+<h3>按钮对象</h3>
+<table>
+    <thead>
+    <th>键</th>
+    <th>类型</th>
+    <th>必填</th>
+    <th>解释</th>
+    </thead>
+    <tbody>
+    <tr>
+        <td>name</td>
+        <td>string</td>
+        <td>是</td>
+        <td>工具栏标题</td>
+    </tr>
+    <tr>
+        <td>img</td>
+        <td>string</td>
+        <td>否</td>
+        <td>显示在菜单栏中的图标</td>
+    </tr>
+    <tr>
+        <td>onclick</td>
+        <td>function</td>
+        <td>否</td>
+        <td>点击回调,可自由编写，如果用来生成小框，需要在这个按钮对象中叠加进小框数据对象的内容。<br>
+            此时将我已经写好的addBoxClickCB函数放进去就行</td>
+    </tr>
+    <tr>
+        <td>conn</td>
+        <td>function</td>
+        <td>如果用来生成小框，则必须有，否则不需要出现</td>
+        <td>见上文</td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

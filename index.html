@@ -1,0 +1,242 @@
+<!--
+
+    HTML->SVG
+    javascript->jQuery,d3
+    CSS
+
+
+-->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="./js/d3.min.js"></script>
+    <script src="./js/jquery.js"></script>
+    <script src="js/jquery.cookie.js"></script>
+
+    <link type="text/css" href="./css/index.css" rel="stylesheet">
+
+
+    <!--拖放绘图所需要的全局数据-->
+    <script>
+
+        //添加线：输入为小框对象,返回对象数组，其内容为每的线的data
+        let connFun = (ele) => {
+            let inLim = 1, outLim = 1;
+            if (ele.data.name === '输入点C') {
+                inLim = 0
+            } else if (currentEle.data.name === '输出点R') {
+                outLim = 0
+            }
+            else if (ele.data.name === '比较点') {
+                inLim = 2
+            } else if (currentEle.data.name === '引出点') {
+                outLim = 2
+            }
+            if (ele.getLine('in').length >= inLim || currentEle.getLine('out').length >= outLim) {
+                return []
+            } else {
+                return [{
+                    name: 'conn1',
+                    data: {}, // 额外的data
+                    option: {
+                        change: [
+                            {
+                                name: '连接强度',
+                                kind: 't',
+                                default: '100%'
+                            },
+                            {
+                                name: "连接重要性",
+                                kind: 'ch',
+                                av: ['高', '低']
+                            }
+                        ]
+                    }
+
+                }, {
+                    name: 'conn2'
+                }]
+            }
+
+        };
+
+        // 添加小框，输入参数为这个工具栏所带有的数据，boxData为toolData中小框的数据本身
+        let addBoxClickCB = (boxData) => {
+            setEleData(boxData);
+            let change = boxData.option.change;
+
+            for (let i in change) {
+                if (change[i].kind === 't') {
+                    boxData.data[change[i].name] = change[i].default
+                } else if (change[i].kind === 'ch') {
+                    boxData.data[change[i].name] = change[i].av[0]
+                }
+            }
+            console.log(boxData.data, boxData.option)
+            let sb = drag.addSmallBox(boxData.data, boxData.option)
+            drag.select(sb).setLocation(100, 200)
+            console.log(sb);
+        }
+
+        // 所有可使用的拖拽块（工具栏）
+        let toolData = [
+            {
+                name: '鼠标',
+                // other: true  // other表示并不是点击后出现小块的内种，此时如果有onclick，调用它
+                onclick: () => {
+                    console.log('cli');
+                    drag.changeMode('normal')
+                }
+            }, {
+                name: '移动画布',
+                onclick: () => {
+                    drag.changeMode('move')
+                }
+            }, {
+                name: '比较点',
+                img: 'img/比较点.png',
+                data: {src: 'img/比较点.png'},
+                option: {
+                    mHeight: 50,
+                    mWidth: 50,
+                    mode: 'i',
+                },
+                onclick: addBoxClickCB,
+                conn: connFun,
+            },
+            {
+                name: '引出点',
+                onclick: addBoxClickCB,
+                conn: connFun,
+            },
+            {
+                name: '线性环节',
+                img: 'img/a.jpg',  //图例
+                child: [
+                    {
+                        name: '线性环节',  // name将作为text进入data中,text作为小框显示内容,可被改变
+                        img: 'img/a.jpg',
+                        data: {src: 'img/t010efb5f2709f92d60.webp'},  // 额外的data,里面也会被自动加一个name键值对,表示块种类，只读
+                        option: {
+                            mHeight: 100, mWidth: 100, mode: 'ti', // 设置显示模式
+                            change: [ // 其他可选项
+                                {
+                                    name: '比例系数',
+                                    kind: 't',  // 直接输入文字，用input框
+                                    default: '1'
+                                }
+                            ]
+                        },  //照抄的option
+                        conn: connFun,
+                        onclick: addBoxClickCB
+                    }, {
+                        name: '单位响应',
+                        option: {
+                            change: [{
+                                name: '比例系数',
+                                kind: 'ch',
+                                av: ['正反馈（+1）', '负反馈（-1）']
+                            }]
+                        },
+                        onclick: addBoxClickCB,
+                        conn: connFun,
+                    }
+                ]
+            }, {
+                name: '自定义传递函数',
+                option: {
+                    change: [{
+                        name: '传递函数',
+                        kind: 't',
+                        default: 'x',
+                    }]
+                },
+                onclick: addBoxClickCB,
+                conn: connFun,
+            }, {
+                name: '输入输出',
+                img: 'img/a.jpg',
+                child: [
+                    {
+                        name: '输入点C',
+                        option: {
+                            backgroundColor: 'white',
+                            edgeColor: 'black'
+                        },
+                        onclick: addBoxClickCB,
+                        conn: connFun,
+                    }, {
+                        name: '输出点R',
+                        option: {
+                            backgroundColor: 'white',
+                            edgeColor: 'black'
+                        },
+                        onclick: addBoxClickCB,
+                        conn: connFun,
+                    }
+                ]
+            }
+        ]
+    </script>
+
+
+</head>
+<body>
+
+<!--顶部导航栏-->
+<div class="topBar">
+    <span id="save-all-button">保存</span>
+    <span id="load-all-button">加载</span>
+</div>
+
+<div class="downside-box">
+    <!--图元表-->
+    <div class="list" id="toolDiv">
+        <div class="top">工具内个栏</div>
+        <ul id="toolRoot"></ul>
+    </div>
+
+    <!--展示框-->
+    <div id="myDiv" class="showDiv"></div>
+
+    <!--详细栏-->
+    <div class="detailDiv" id="detail">
+        <div id="det-title">详细</div>
+        <ul>
+            <li id="det-name" style="display: none">
+                <p>名称：</p>
+                <p style="text-align: center;"></p>
+            </li>
+            <li id="det-text" style="display: none">
+                <p>标题：</p>
+                <input>
+            </li>
+            <li class="det-one-line" id="det-X" style="display: none">
+                <p>X:</p>
+                <input>
+            </li>
+            <li class="det-one-line" id="det-Y" style="display: none">
+                <p>Y:</p>
+                <input>
+            </li>
+
+            <li id="det-att" style="display: none">
+                <p>备注：</p>
+                <textarea></textarea>
+            </li>
+        </ul>
+        <div id="det-button" style="display: none">
+            <button id="save-button">保存</button>
+            <button style="margin-left: 10%" id="del-button">删除</button>
+        </div>
+    </div>
+</div>
+
+<script src="./js/dragbox.js"></script>
+
+</body>
+</html>
